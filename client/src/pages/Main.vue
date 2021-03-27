@@ -9,25 +9,33 @@
     <!-- header -->
 
     <!-- env -->
-    <div class='row q-gutter-sm'>
+    <div class='row q-gutter-sm no-wrap'>
       <div v-for='(env,i) in tree' :key="'env' + i">
         <q-card style='width:400px' flat bordered>
           <q-card-section class='q-py-sm'>
-            <q-input label='Environment Name (Example: production, zucc, test123)' :value='env.name' bg-color='blue-3'
-              debounce='300' @input='v => on_change({ env: env.name}, {env: v})' dense standout/>
+            <div class="row items-center no-wrap">
+              <div class='col'>
+                <q-input label='Environment Name (Example: production, zucc, test123)' :value='env.name' bg-color='blue-3'
+                  debounce='300' @input='v => on_change({ env: env.name}, {env: v})' dense standout/>
+              </div>
+              <div class='col-auto'>
+                <q-btn class='fit' color='blue-5' icon='fas fa-copy' @click="click_copy_env(env.name)"
+                  flat no-caps/>
+              </div>
+            </div>
           </q-card-section>
           <q-card-section class='q-py-sm q-ml-lg' v-for='(tag,j) in env.tags' :key="'tag' + j">
             <q-input label='Tag Name (Example: MongoDB, Moosend, RabbitMQ)' :value='tag.name' bg-color='green-3'
               debounce='300' @input='v => on_change({ env: env.name, tag: tag.name}, {tag: v})' dense standout/>
             <div class='q-ml-lg q-mt-md'>
-              <div class='row q-col-gutter-sm q-mb-sm' v-for='(item,k) in tag.items' :key="'env' + i + 'tag' + j + 'item' + k">
+              <div class='row items-center q-col-gutter-sm q-mb-sm' v-for='(item,k) in tag.items' :key="'env' + i + 'tag' + j + 'item' + k">
                 <div class='col-2'>
-                  <q-btn class='fit' color='red-5' icon='fas fa-times'
+                  <q-btn class='fit' color='red-5' icon='fas fa-times' size='sm'
                     @click='click_remove_item({ env: env.name, tag: tag.name, key: item.key})' unelevated/>
                   </div>
                 <div class='col-5'>
                   <q-input :value='item.key' bg-color='orange-2' debounce='300'
-                    @input='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {key: v})'
+                    @input='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {key: v.toUpperCase()})'
                     dense standout style='font-size:0.8em'/>
                 </div>
                 <div class='col-5'>
@@ -110,6 +118,14 @@ export default {
       let defaults = { env: 'ENV_NAME', tag: 'TAG_NAME', key: 'SOME_KEY', val: 'SOME_VALUE' };
       let item = Object.assign(defaults, query);
       this.envs.push(item);
+    },
+    click_copy_env(env) {
+      let env_new = `${env}1`;
+      let items = this.lodash.filter(this.envs, { env: env });
+      for (let item of items) {
+        let item_new = { ...item, env: env_new };
+        this.envs.push(item_new);
+      }
     },
     click_remove_item(query) {
       let idx = this.lodash.findIndex(this.envs, query);
