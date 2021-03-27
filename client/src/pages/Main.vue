@@ -28,8 +28,8 @@
             </div>
           </q-card-section>
           <q-card-section class='q-py-sm q-ml-lg' v-for='(tag,j) in env.tags' :key="'tag' + j">
-            <q-input label='Tag Name (Example: MongoDB, Moosend, RabbitMQ)' :value='tag.name' bg-color='green-3'
-              debounce='300' @input='v => on_change({ env: env.name, tag: tag.name}, {tag: v})' dense standout/>
+            <q-input label='Tag Name (Example: mongodb, moosend, rabbitmq)' :value='tag.name' bg-color='green-3'
+              debounce='300' @input='v => on_change({ env: env.name, tag: tag.name}, {tag: v.toLowerCase()})' dense standout/>
             <div class='q-ml-lg q-mt-md'>
               <div class='row items-center q-col-gutter-sm q-mb-sm' v-for='(item,k) in tag.items' :key="'env' + i + 'tag' + j + 'item' + k">
                 <div class='col-2'>

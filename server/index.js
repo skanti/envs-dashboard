@@ -12,6 +12,8 @@ const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
 const CryptoJS = require("crypto-js");
 const rateLimit = require("express-rate-limit");
+const lodash = require('lodash');
+
 
 
 // -> express setup
@@ -85,7 +87,7 @@ app.post("/api/login", function (req, res, next) {
 
 
 app.get("/api/db", authenticate_jwt, function (req, res, next) {
-  let r = db.get('envs');
+  let r = db.get('envs').value();
   res.send(r);
 });
 
@@ -93,7 +95,7 @@ app.get("/api/api_token", authenticate_jwt, function (req, res, next) {
   //let r = db.remove('api_token').write();
   const token = CryptoJS.lib.WordArray.random(16).toString();
   //let r = db.update('api_token', x => token).write();
-  let r = db.get('api_token');
+  let r = db.get('api_token').value();
   res.send(r);
 });
 
@@ -104,6 +106,24 @@ app.post("/api/db", authenticate_jwt, function (req, res, next) {
     db.get('envs').push(item).write();
   }
   res.send();
+});
+
+app.get("/api/envs", function (req, res, next) {
+  let { api_token, env, tags } = req.query;
+  if (!api_token)
+    return res.status(403).send();
+
+  if (!tags)
+    return res.status(500).send("Tags not specified");
+
+  tags = tags.split(',');
+  if (tags.length == 0)
+    return res.status(500).send("Tags not specified");
+
+
+  let r = db.get('envs').filter({ env: env }).value();
+  r = r.filter(x => tags.includes(x.tag));
+  res.send(r);
 });
 
 
