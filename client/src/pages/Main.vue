@@ -2,49 +2,56 @@
   <div class='q-ma-sm'>
 
     <!-- header -->
-    <div class='text-center text-h5 text-bold q-ma-lg'> Envs Injector </div>
+    <div class='text-center q-ma-lg'>
+      <div class='text-h5 text-bold'> Envs Injector </div>
+      <q-btn :loading='loading' color='red-5' label='Save' icon='fas fa-save' @click='click_save()' no-caps unelevated/>
+    </div>
     <!-- header -->
 
     <!-- env -->
     <div class='row q-gutter-sm'>
-      <div v-for='(env,i) in envs' :key='"env" + i'>
+      <div v-for='(env,i) in tree' :key="'env' + i">
         <q-card style='width:400px' flat bordered>
-          <q-card-section>
-            <q-input v-model="env.env" bg-color='blue-3' hint='Example: production, aavetisyan, test123' dense standout/>
+          <q-card-section class='q-py-sm'>
+            <q-input label='Environment Name (Example: production, zucc, test123)' :value='env.name' bg-color='blue-3'
+              debounce='300' @input='v => on_change({ env: env.name}, {env: v})' dense standout/>
           </q-card-section>
-          <q-card-section class='q-ml-lg' v-for='(tag,j) in env.tags' :key='"tag" + j'>
-            <q-input v-model="tag.tag" bg-color='green-3' hint='Example: MongoDB, Moosend, RabbitMQ' dense standout/>
+          <q-card-section class='q-py-sm q-ml-lg' v-for='(tag,j) in env.tags' :key="'tag' + j">
+            <q-input label='Tag Name (Example: MongoDB, Moosend, RabbitMQ)' :value='tag.name' bg-color='green-3'
+              debounce='300' @input='v => on_change({ env: env.name, tag: tag.name}, {tag: v})' dense standout/>
             <div class='q-ml-lg q-mt-md'>
-              <div class='row q-col-gutter-sm q-mb-sm' v-for='(item,k) in tag.items' :key='"env" + i + "tag" + j + "item" + k'>
-                <div class='col-6'>
-                  <q-input v-model="item.key" bg-color='orange-2' dense standout/>
+              <div class='row q-col-gutter-sm q-mb-sm' v-for='(item,k) in tag.items' :key="'env' + i + 'tag' + j + 'item' + k">
+                <div class='col-2'>
+                  <q-btn class='fit' color='red-5' icon='fas fa-times'
+                    @click='click_remove_item({ env: env.name, tag: tag.name, key: item.key})' unelevated/>
+                  </div>
+                <div class='col-5'>
+                  <q-input :value='item.key' bg-color='orange-2' debounce='300'
+                    @input='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {key: v})'
+                    dense standout style='font-size:0.8em'/>
                 </div>
-                <div class='col-6'>
-                  <q-input v-model="item.val" bg-color='orange-2' dense standout/>
+                <div class='col-5'>
+                  <q-input :value='item.val' bg-color='orange-2' debounce='300'
+                    @input='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {val: v})'
+                    dense standout style='font-size:0.8em'/>
                 </div>
               </div>
             </div>
-            <div class='q-ml-lg q-mt-md'>
-              <q-btn color='orange-5' label='New Item' icon='fas fa-plus' @click='click_new_item(env.env, tag.tag)'
+            <div class='q-ml-lg'>
+              <q-btn color='orange-5' label='New Item' icon='fas fa-plus' @click="click_new_item({ env: env.name, tag: tag.name, key: 'SOME_KEY'})"
                 dense outline no-caps/>
             </div>
           </q-card-section>
-          <q-card-section class='q-ml-lg'>
-            <q-btn color='green-3' label='New Tag' icon='fas fa-plus' @click='click_new_tag(env.env)' dense outline no-caps/>
-          </q-card-section>
 
-          <q-separator />
-          <q-card-actions align='right'>
-            <q-btn class='q-mb-sm text-center' color='red-5' label='Save' icon='fas fa-save' @click='click_save(env.name)' no-caps unelevated/>
-          </q-card-actions>
+          <q-card-section class='q-ml-lg'>
+            <q-btn color='green-3' label='New Tag' icon='fas fa-plus' @click="click_new_item({ env: env.name, tag: 'TAG_NAME' })" dense outline no-caps/>
+          </q-card-section>
         </q-card>
       </div>
 
-      <q-card flat bordered>
-        <q-card-section>
-          <q-btn color='blue-5' label='New Environment' icon='fas fa-plus' @click='click_new_environment' dense outline no-caps/>
-        </q-card-section>
-      </q-card>
+      <div>
+        <q-btn color='blue-5' label='New Environment' icon='fas fa-plus' @click="click_new_item({env: 'ENV_NAME'})" dense outline no-caps/>
+      </div>
 
     </div>
     <!-- env -->
@@ -54,6 +61,7 @@
 <script>
 
 import axios from 'axios';
+import { required, minLength } from 'vuelidate/lib/validators'
 //import { Query } from 'query';
 
 
@@ -61,61 +69,67 @@ export default {
   components: { },
   data: function() {
     return {
-      envs: [ ],
+      loading: false,
+      envs: [],
+      envs_original: [],
     };
   },
   computed: {
+    tree() {
+      let env_list = new Set(this.envs.map(v => v.env));
+      let tag_list = new Set(this.envs.map(v => v.tag));
+
+      let tree = Array.from(env_list).map(e => {
+        let tags = Array.from(tag_list).map(t => {
+          let items = this.envs.filter(item => item.env == e && item.tag == t);
+          items = [...new Map(items.map(item => [item['key'], item])).values()];
+          return { name: t, items: items };
+        });
+        return { name: e, tags: tags };
+      });
+
+      return tree;
+    }
   },
   created: function() {
     axios.defaults.headers.common['x-access-token'] = this.$store.state.access_token;
     this.sync();
   },
-  beforeDestroy: function () {
-  },
   methods: {
     sync() {
-      axios.get("/api/db").then(res => {
-        console.log(res.data);
+      axios.get('/api/db').then(res => {
         this.envs = res.data;
+        this.envs_original = this.lodash.clone(this.envs);
       });
 
     },
-    click_new_environment() {
-      const env = 'ENV_NAME';
-      let exists = this.lodash.filter(this.envs, { env: env });
-      if (exists.length > 0)
-        return;
-      let item = {
-        env: 'ENV_NAME',
-        tags: [{
-          tag: 'TAG_NAME', items: [{ key: 'SOME_KEY', val: 'SOME_VALUE' }]
-        }]
-      };
+    click_new_item(query) {
+      let items = this.lodash.filter(this.envs, query);
+      if (items.length > 0)
+        return
+      let defaults = { env: 'ENV_NAME', tag: 'TAG_NAME', key: 'SOME_KEY', val: 'SOME_VALUE' };
+      let item = Object.assign(defaults, query);
       this.envs.push(item);
     },
-    click_new_tag(env) {
-      const tag = 'TAG_NAME';
-      let exists = this.lodash.filter(this.envs, { env: env, tags: [{tag: tag }] });
-      if (exists.length > 0)
-        return;
-      let item = { env: env,  tag: 'TAG_NAME', key: 'SOME_KEY', val: 'SOME_VALUE' };
-      this.envs.push(item);
+    click_remove_item(query) {
+      let idx = this.lodash.findIndex(this.envs, query);
+      this.envs.splice(idx, 1);
     },
-    click_new_item(env, tag) {
-      const key = 'SOME_KEY';
-      let exists = this.lodash.filter(this.envs, { env: env,
-        tags: [ {tag: tag, items: [{key: key}] }] });
-      if (exists.length > 0)
-        return;
-      let item = { env: env,  tag: tag, key: 'SOME_KEY', val: 'SOME_VALUE' };
-      this.envs.push(item);
+    on_change(query, update) {
+      let items = this.lodash.filter(this.envs, query);
+      for (let item of items) {
+        Object.assign(item, update);
+      }
     },
-    click_save(env) {
-      let items = this.envs.filter(item => item.name === env);
-      console.log(items);
-      //axios.post("/api/db", { env: env, data: items }).then(res => {
-      //  console.log(res.data);
-      //})
+    async click_save() {
+      await axios.post('/api/db', { data: this.envs });
+      this.sync();
+    }
+  },
+  validations: {
+    environment_new: {
+      required,
+      minLength: minLength(3)
     }
   }
 }

@@ -85,24 +85,16 @@ app.post("/api/login", function (req, res, next) {
 
 app.get("/api/db", authenticate_jwt, function (req, res, next) {
   let r = db.get('envs');
-  r.remove().write();
-  console.log(r);
+  //r.remove().write();
+  //console.log(r);
   res.send(r);
 });
 
 app.post("/api/db", authenticate_jwt, function (req, res, next) {
   let { data } = req.body;
-  let handle = db.get('envs');
+  db.get('envs').remove().write();
   for (let item of data) {
-    const {env, tag, key} = item;
-    assert.ok(env && tag && key);
-    let r = handle.find({ env: env, tag: tag, key: key });
-    if (r.value()) {
-      console.log('item', item);
-      r.assign(item).write();
-    } else {
-      handle.push(item).write();
-    }
+    db.get('envs').push(item).write();
   }
   res.send();
 });
