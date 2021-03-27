@@ -3,7 +3,7 @@
 
     <!-- header -->
     <div class='q-ma-lg'>
-      <div class='text-h5 text-center text-bold'> Envs Injector </div>
+      <div class='text-h5 text-center text-bold'> Envs Dashboard </div>
       <div class='row q-gutter-lg justify-center'>
         <q-btn :loading='loading' color='blue-5' :label='api_token' icon='fas fa-key' @click='click_copy(api_token)' no-caps outline/>
         <q-btn :loading='loading' color='red-5' label='Save' icon='fas fa-save' @click='click_save()' no-caps unelevated/>
