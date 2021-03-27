@@ -1,0 +1,11 @@
+# folders
+node_modules
+client/dist
+static
+
+# generated
+vault
+
+# editor stuff
+.vscode
+*.sw?
