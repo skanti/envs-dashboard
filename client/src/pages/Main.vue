@@ -2,9 +2,12 @@
   <div class='q-ma-sm'>
 
     <!-- header -->
-    <div class='text-center q-ma-lg'>
-      <div class='text-h5 text-bold'> Envs Injector </div>
-      <q-btn :loading='loading' color='red-5' label='Save' icon='fas fa-save' @click='click_save()' no-caps unelevated/>
+    <div class='q-ma-lg'>
+      <div class='text-h5 text-center text-bold'> Envs Injector </div>
+      <div class='row q-gutter-lg justify-center'>
+        <q-btn :loading='loading' color='blue-5' :label='api_token' icon='fas fa-key' @click='click_copy(api_token)' no-caps outline/>
+        <q-btn :loading='loading' color='red-5' label='Save' icon='fas fa-save' @click='click_save()' no-caps unelevated/>
+      </div>
     </div>
     <!-- header -->
 
@@ -69,8 +72,7 @@
 <script>
 
 import axios from 'axios';
-import { required, minLength } from 'vuelidate/lib/validators'
-//import { Query } from 'query';
+import { copyToClipboard } from 'quasar'
 
 
 export default {
@@ -78,6 +80,7 @@ export default {
   data: function() {
     return {
       loading: false,
+      api_token: '',
       envs: [],
       envs_original: [],
     };
@@ -104,17 +107,22 @@ export default {
     this.sync();
   },
   methods: {
-    sync() {
-      axios.get('/api/db').then(res => {
-        this.envs = res.data;
-        this.envs_original = this.lodash.clone(this.envs);
-      });
+    async sync() {
+      this.loading = true;
+      let res = await axios.get('/api/api_token');
+      this.api_token = res.data;
 
+      res = await axios.get('/api/db');
+      this.envs = res.data;
+      this.envs_original = this.lodash.clone(this.envs);
+      this.loading = false;
     },
     click_new_item(query) {
       let items = this.lodash.filter(this.envs, query);
-      if (items.length > 0)
+      if (items.length > 0) {
+      this.notify('New item already exists', 'Canceled!');
         return
+      }
       let defaults = { env: 'ENV_NAME', tag: 'TAG_NAME', key: 'SOME_KEY', val: 'SOME_VALUE' };
       let item = Object.assign(defaults, query);
       this.envs.push(item);
@@ -140,12 +148,13 @@ export default {
     async click_save() {
       await axios.post('/api/db', { data: this.envs });
       this.sync();
-    }
-  },
-  validations: {
-    environment_new: {
-      required,
-      minLength: minLength(3)
+    },
+    async click_copy(text) {
+      copyToClipboard(text);
+      this.notify(text, 'Copied!');
+    },
+    notify(message, caption) {
+      this.$q.notify({ timeout: 1000, color: 'orange-5', icon: 'fas fa-comment-alt', caption: caption, message: message, position: 'bottom' })
     }
   }
 }

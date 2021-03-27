@@ -46,8 +46,9 @@ const adapter = new FileSync(vault_filename, {
   serialize: (data) => encrypt(JSON.stringify(data)),
   deserialize: (data) => JSON.parse(decrypt(data))
 })
+
 const db = low(adapter)
-db.defaults({ envs: []}).write();
+db.defaults({ envs: [], api_token: CryptoJS.lib.WordArray.random(16).toString()}).write();
 // <-
 
 const authenticate_jwt = function(req, res, next) {
@@ -85,8 +86,14 @@ app.post("/api/login", function (req, res, next) {
 
 app.get("/api/db", authenticate_jwt, function (req, res, next) {
   let r = db.get('envs');
-  //r.remove().write();
-  //console.log(r);
+  res.send(r);
+});
+
+app.get("/api/api_token", authenticate_jwt, function (req, res, next) {
+  //let r = db.remove('api_token').write();
+  const token = CryptoJS.lib.WordArray.random(16).toString();
+  //let r = db.update('api_token', x => token).write();
+  let r = db.get('api_token');
   res.send(r);
 });
 

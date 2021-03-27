@@ -8,9 +8,10 @@ import VueLodash from 'vue-lodash'
 import lodash from 'lodash'
 Vue.use(VueLodash, { lodash: lodash })
 
+import Vuelidate from 'vuelidate'
+Vue.use(Vuelidate)
 
 Vue.config.productionTip = false
-
 
 new Vue({
   router,

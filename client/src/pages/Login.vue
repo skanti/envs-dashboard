@@ -1,6 +1,6 @@
 <template>
   <div class='q-pa-md'>
-  <q-card class='q-mx-auto' style='max-width:500px'>
+  <q-card class='q-mx-auto' style='max-width:500px' v-on:keyup.enter='click_submit'>
     <q-card-section class="q-gutter-sm">
       <!-- input user-->
       <q-input v-model='user' label='Username' type='text' @input='$v.user.$touch()'
@@ -12,11 +12,6 @@
         :rules='[ v => $v.password.required || "Enter password" ]' lazy-rules outlined />
       <!-- input password-->
 
-      <!-- Login button -->
-      <q-btn label='Login' icon='fas fa-sign-in-alt' :loading='loading'
-        color='primary' :disable='$v.$invalid'  @click='click_submit' no-caps />
-      <!-- Login button -->
-
       <!-- Status messages -->
       <div v-if='status == "fail"' class='text-red-5'>
         Login gescheitert <i class='fas fa-times'></i>
@@ -25,7 +20,15 @@
         Login erfolgreich <i class='fas fa-check-circle'></i>
       </div>
       <!-- Status messages -->
+
     </q-card-section>
+
+    <q-card-actions align='center'>
+      <!-- Login button -->
+      <q-btn label='Login' icon='fas fa-sign-in-alt' :loading='loading'
+        color='primary' :disable='$v.$invalid'  @click='click_submit' no-caps />
+      <!-- Login button -->
+    </q-card-actions>
 
   </q-card>
 </div>
