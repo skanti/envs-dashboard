@@ -60,7 +60,7 @@ const authenticate_jwt = function(req, res, next) {
 
   jwt.verify(access_token, process.env.JWT_SECRET, (err, data) => {
     if (err)
-      return res.sendStatus(403);
+      return res.sendStatus(401);
     req.user = data.user;
     next();
   })
@@ -73,16 +73,11 @@ function create_access_token(user){
 
 app.post("/api/login", function (req, res, next) {
   assert.ok(process.env.JWT_SECRET);
-  try {
-    let { user, password } = req.body;
-    if (password !== process.env.JWT_SECRET)
-      throw new Error("WrongPassword");
-    const access_token = create_access_token(user);
-    res.send({ access_token: access_token });
-  } catch (err) {
-    console.log(err);
-    res.sendStatus(403);
-  }
+  let { user, password } = req.body;
+  if (password !== process.env.JWT_SECRET)
+    return res.sendStatus(401);
+  const access_token = create_access_token(user);
+  res.send({ access_token: access_token });
 });
 
 
@@ -111,7 +106,7 @@ app.post("/api/db", authenticate_jwt, function (req, res, next) {
 app.get("/api/envs", function (req, res, next) {
   let { api_token, env, tags } = req.query;
   if (!api_token)
-    return res.status(403).send();
+    return res.status(401).send();
 
   if (!tags)
     return res.status(500).send("Tags not specified");

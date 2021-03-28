@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import createPersistedState from "vuex-persistedstate";
+import createPersistedState from 'vuex-persistedstate';
 
 const dataState = createPersistedState({});
 Vue.use(Vuex)
@@ -10,8 +10,8 @@ import axios from 'axios';
 export default new Vuex.Store({
   plugins: [dataState],
   state: {
-    user: "",
-    access_token: "",
+    user: '',
+    access_token: '',
   },
   mutations: {
     user(state, user) {
@@ -29,6 +29,10 @@ export default new Vuex.Store({
       }).catch(err => {
         return Promise.reject(err);
       });
+    },
+    logout({commit}) {
+      commit('access_token', '');
+      commit('user', '');
     }
   },
 })

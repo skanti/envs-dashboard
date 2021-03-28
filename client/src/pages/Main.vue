@@ -5,6 +5,7 @@
     <div class='q-ma-lg'>
       <div class='text-h5 text-center text-bold'> Envs Dashboard </div>
       <div class='row q-gutter-lg justify-center'>
+        <q-btn color='dark' label='Logout' icon='fas fa-sign-out-alt' @click='click_logout()' no-caps />
         <q-btn :loading='loading' color='blue-5' :label='api_token' icon='fas fa-key' @click='click_copy(api_token)' no-caps outline/>
         <q-btn :loading='loading' color='red-5' label='Save' icon='fas fa-save' @click='click_save()' no-caps unelevated/>
       </div>
@@ -155,6 +156,10 @@ export default {
     },
     notify(message, caption) {
       this.$q.notify({ timeout: 1000, color: 'orange-5', icon: 'fas fa-comment-alt', caption: caption, message: message, position: 'bottom' })
+    },
+    click_logout() {
+      this.$store.dispatch('logout');
+      this.$router.go();
     }
   }
 }

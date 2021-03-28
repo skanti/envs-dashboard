@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "vue-cli-service build --watch --modern",
+    "dev": "vue-cli-service build --watch --modern",
+    "build": "vue-cli-service build --modern",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
@@ -11,7 +12,6 @@
     "axios": "^0.21.1",
     "lodash": "^4.17.21",
     "quasar": "^1.0.0",
-    "query": "github:protobi/query",
     "vue": "^2.6.11",
     "vue-lodash": "^2.1.2",
     "vue-router": "^3.2.0",
@@ -21,7 +21,6 @@
   },
   "devDependencies": {
     "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-pwa": "~4.5.0",
     "@vue/cli-plugin-router": "~4.5.0",
     "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
