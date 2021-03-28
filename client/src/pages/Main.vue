@@ -28,11 +28,11 @@
               </div>
             </div>
           </q-card-section>
-          <q-card-section class='q-py-sm q-ml-lg' v-for='(tag,j) in env.tags' :key="'tag' + j">
+          <q-card-section class='q-py-sm q-ml-md' v-for='(tag,j) in env.tags' :key="'tag' + j">
             <q-input label='Tag Name (Example: mongodb, moosend, rabbitmq)' :value='tag.name' bg-color='green-3'
               debounce='300' @input='v => on_change({ env: env.name, tag: tag.name}, {tag: v.toLowerCase()})' dense standout/>
-            <div class='q-ml-lg q-mt-md'>
-              <div class='row items-center q-col-gutter-sm q-mb-sm' v-for='(item,k) in tag.items' :key="'env' + i + 'tag' + j + 'item' + k">
+            <div class='q-ml-md q-mt-md'>
+              <div class='row items-center q-col-gutter-xs q-mb-xs' v-for='(item,k) in tag.items' :key="'env' + i + 'tag' + j + 'item' + k">
                 <div class='col-2'>
                   <q-btn class='fit' color='red-5' icon='fas fa-times' size='sm'
                     @click='click_remove_item({ env: env.name, tag: tag.name, key: item.key})' unelevated/>
@@ -49,13 +49,13 @@
                 </div>
               </div>
             </div>
-            <div class='q-ml-lg'>
+            <div class='q-ml-md'>
               <q-btn color='orange-5' label='New Item' icon='fas fa-plus' @click="click_new_item({ env: env.name, tag: tag.name, key: 'SOME_KEY'})"
                 dense outline no-caps/>
             </div>
           </q-card-section>
 
-          <q-card-section class='q-ml-lg'>
+          <q-card-section class='q-ml-md'>
             <q-btn color='green-3' label='New Tag' icon='fas fa-plus' @click="click_new_item({ env: env.name, tag: 'TAG_NAME' })" dense outline no-caps/>
           </q-card-section>
         </q-card>

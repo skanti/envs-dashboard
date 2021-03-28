@@ -104,7 +104,10 @@ app.post("/api/db", authenticate_jwt, function (req, res, next) {
 });
 
 app.get("/api/envs", function (req, res, next) {
-  let { api_token, env, tags } = req.query;
+  let { api_token, env, tags, format } = req.query;
+  if (!env)
+    return res.status(500).send("Env not specified");
+
   if (!api_token)
     return res.status(401).send();
 
@@ -115,10 +118,18 @@ app.get("/api/envs", function (req, res, next) {
   if (tags.length == 0)
     return res.status(500).send("Tags not specified");
 
+  if (!format)
+    return res.status(500).send("Format not specified: [txt,json]");
 
   let r = db.get('envs').filter({ env: env }).value();
   r = r.filter(x => tags.includes(x.tag));
-  res.send(r);
+  if (format === 'json') {
+    res.send(r);
+  } else if (format === 'txt') {
+    text = r.map(x => `${x.key}=${x.val}`);
+    text = text.join('\n');
+    res.send(text);
+  }
 });
 
 
