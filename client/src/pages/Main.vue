@@ -33,16 +33,23 @@
               debounce='300' @input='v => on_change({ env: env.name, tag: tag.name}, {tag: v.toLowerCase()})' dense standout/>
             <div class='q-ml-md q-mt-md'>
               <div class='row items-center q-col-gutter-xs q-mb-xs' v-for='(item,k) in tag.items' :key="'env' + i + 'tag' + j + 'item' + k">
-                <div class='col-2'>
-                  <q-btn class='fit' color='red-5' icon='fas fa-times' size='sm'
-                    @click='click_remove_item({ env: env.name, tag: tag.name, key: item.key})' unelevated/>
+                <div class='col-auto'>
+                  <q-btn color='red-5' icon='fas fa-times' size='xs'
+                    @click='click_remove_item({ env: env.name, tag: tag.name, key: item.key})' dense unelevated/>
                   </div>
                 <div class='col-5'>
                   <q-input :value='item.key' bg-color='orange-2' debounce='300'
                     @input='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {key: v.toUpperCase()})'
-                    dense standout style='font-size:0.8em'/>
+                    dense standout style='font-size:0.8em'>
+                    <template v-if='is_key_duplicate({env: env.name, key: item.key})' v-slot:append>
+                      <q-icon color='red-5' name="fas fa-exclamation-circle" />
+                    </template>
+                  </q-input>
                 </div>
-                <div class='col-5'>
+                <!--
+                    :error='is_key_duplicate({ env: env.name, key: item.key})'
+                    -->
+                <div class='col-6'>
                   <q-input :value='item.val' bg-color='orange-2' debounce='300'
                     @input='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {val: v})'
                     dense standout style='font-size:0.8em'/>
@@ -101,7 +108,7 @@ export default {
       });
 
       return tree;
-    }
+    },
   },
   created: function() {
     axios.defaults.headers.common['x-access-token'] = this.$store.state.access_token;
@@ -145,6 +152,10 @@ export default {
       for (let item of items) {
         Object.assign(item, update);
       }
+    },
+    is_key_duplicate(query) {
+      let items = this.lodash.filter(this.envs, query);
+      return items.length > 1;
     },
     async click_save() {
       await axios.post('/api/db', { data: this.envs });
