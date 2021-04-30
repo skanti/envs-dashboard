@@ -1,38 +1,45 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+// persistent variables, rest is not saved in local storage
+import { createStore } from 'vuex'
 import createPersistedState from 'vuex-persistedstate';
 
-const dataState = createPersistedState({});
-Vue.use(Vuex)
-
+const persisted_state = createPersistedState({ paths: [ 'logged_in', 'access_token', 'user' ] });
 import axios from 'axios';
 
-export default new Vuex.Store({
-  plugins: [dataState],
+const store = createStore({
+  plugins: [persisted_state],
   state: {
-    user: '',
+    logged_in: false,
     access_token: '',
+    user: '',
   },
   mutations: {
     user(state, user) {
       state.user = user;
     },
-    access_token(state, access_token) {
+    logout (state) {
+      state.logged_in = false;
+      state.access_token = '';
+      state.user = '';
+    },
+    login (state, { access_token, user }) {
+      state.logged_in = true;
       state.access_token = access_token;
+      state.user = user;
     }
   },
   actions: {
-    login({ commit }, data) {
+    login ({ commit }, data) {
       return axios.post('/api/login', data).then(res => {
-        commit('access_token', res.data.access_token);
-        return Promise.resolve(res.data);
+        commit('login', { access_token: res.data.access_token, user: 'xyz' });
+        return Promise.resolve(res.data)
       }).catch(err => {
-        return Promise.reject(err);
-      });
+        return Promise.reject(err)
+      })
     },
-    logout({commit}) {
-      commit('access_token', '');
-      commit('user', '');
+    logout ({ commit }) {
+      commit('logout');
     }
-  },
+  }
 })
+
+export default store;
