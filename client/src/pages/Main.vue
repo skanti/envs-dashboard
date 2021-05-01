@@ -110,6 +110,15 @@ export default {
   },
   created: function () {
     axios.defaults.headers.common['x-access-token'] = this.$store.state.access_token
+    axios.interceptors.response.use(res => {
+      return res;
+    }, err => {
+      if (err.response != undefined && err.response.status === 401) {
+        this.$store.dispatch('logout');
+        this.notify('Session expired.', 'Logout & Reload')
+      }
+    });
+
     this.sync()
   },
   methods: {
