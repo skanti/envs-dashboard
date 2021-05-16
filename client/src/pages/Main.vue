@@ -78,7 +78,7 @@
 
 import axios from 'axios'
 import { copyToClipboard } from 'quasar'
-import lodash from 'lodash/core';
+import lodash from 'lodash';
 
 
 export default {
@@ -116,6 +116,7 @@ export default {
       if (err.response != undefined && err.response.status === 401) {
         this.$store.dispatch('logout');
         this.notify('Session expired.', 'Logout & Reload')
+        return Promise.reject(err);
       }
     });
 
