@@ -17,13 +17,13 @@
       <div v-for='(env,i) in tree' :key="'env' + i">
         <q-card style='width:400px' flat bordered>
           <q-card-section class='q-py-sm'>
-            <div class="row items-center no-wrap">
+            <div class='row items-center no-wrap'>
               <div class='col'>
                 <q-input label='Environment Name (Example: jenkins, zucc, hotfix)' :model-value='env.name' bg-color='blue-3'
                   debounce='300' @update:model-value='v => on_change({ env: env.name}, {env: v})' dense standout/>
               </div>
               <div class='col-auto'>
-                <q-btn class='fit' color='blue-5' icon='content_copy' @click="click_copy_env(env.name)"
+                <q-btn class='fit' color='blue-5' icon='content_copy' @click='click_copy_env(env.name)'
                   flat no-caps/>
               </div>
             </div>
@@ -40,16 +40,16 @@
                 <div class='col-5'>
                   <q-input :model-value='item.key' bg-color='orange-2' debounce='300'
                     @update:model-value='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {key: v.toUpperCase()})'
-                    dense standout style='font-size:0.8em'>
+                    style='font-size:0.8em' dense standout>
                     <template v-if='is_key_duplicate({env: env.name, key: item.key})' v-slot:append>
-                      <q-icon color='red-5' name="warning" />
+                      <q-icon color='red-5' name='warning' />
                     </template>
                   </q-input>
                 </div>
                 <div class='col-6'>
                   <q-input :model-value='item.val' bg-color='orange-2' debounce='300'
                     @update:model-value='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {val: v})'
-                    dense standout style='font-size:0.8em'/>
+                    style='font-size:0.8em' dense standout />
                 </div>
               </div>
             </div>
