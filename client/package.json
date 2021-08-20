@@ -16,7 +16,8 @@
     "vue-cli-plugin-quasar": "^4.0.1",
     "vue-router": "^4.0.10",
     "vuex": "^4.0.2",
-    "vuex-persistedstate": "4.0.0"
+    "vuex-persistedstate": "4.0.0",
+    "yup": "^0.32.9"
   },
   "devDependencies": {
     "@vue/cli-plugin-eslint": "~4.5.0",
