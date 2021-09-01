@@ -9,3 +9,5 @@ npm run build
 cd ../server
 npm install
 ./start.sh
+
+tmux rename-session vault

@@ -83,7 +83,7 @@ import lodash from 'lodash';
 
 export default {
   components: { },
-  data: function () {
+  data () {
     return {
       loading: false,
       api_token: '',
@@ -108,14 +108,15 @@ export default {
       return tree
     }
   },
-  created: function () {
+  created () {
     axios.defaults.headers.common['x-access-token'] = this.$store.state.access_token
     axios.interceptors.response.use(res => {
       return res;
     }, err => {
       if (err.response != undefined && err.response.status === 401) {
         this.$store.dispatch('logout');
-        this.notify('Session expired.', 'Logout & Reload')
+        this.notify('Session expired.', 'Logging out...')
+        setTimeout(() => this.$router.go(), 5000);
         return Promise.reject(err);
       }
     });
@@ -167,7 +168,8 @@ export default {
     },
     async click_save () {
       await axios.post('/api/db', { data: this.envs })
-      this.sync()
+      await this.sync()
+      this.notify(null, 'Saved!')
     },
     async click_copy (text) {
       copyToClipboard(text)
