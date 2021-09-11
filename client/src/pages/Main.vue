@@ -13,9 +13,9 @@
     <!-- header -->
 
     <!-- env -->
-    <div class='row q-gutter-sm no-wrap'>
-      <div v-for='(env,i) in tree' :key="'env' + i">
-        <q-card style='width:400px' flat bordered>
+    <div class='row q-col-gutter-sm'>
+      <div class='col-12 col-sm-4' v-for='(env,i) in tree' :key="'env' + i">
+        <q-card flat bordered>
           <q-card-section class='q-py-sm'>
             <div class='row items-center no-wrap'>
               <div class='col'>
@@ -41,7 +41,10 @@
                   <q-input :model-value='item.key' bg-color='orange-2' debounce='300'
                     @update:model-value='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {key: v.toUpperCase()})'
                     style='font-size:0.8em' dense standout>
-                    <template v-if='is_key_duplicate({env: env.name, key: item.key})' v-slot:append>
+                    <template v-slot:append>
+                      <q-btn size='sm' icon='content_copy' @click='click_copy(item.key)' round dense flat/>
+                    </template>
+                    <template v-if='is_key_duplicate({env: env.name, key: item.key})' v-slot:after>
                       <q-icon color='red-5' name='warning' />
                     </template>
                   </q-input>
@@ -49,7 +52,11 @@
                 <div class='col-6'>
                   <q-input :model-value='item.val' bg-color='orange-2' debounce='300'
                     @update:model-value='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {val: v})'
-                    style='font-size:0.8em' dense standout />
+                    style='font-size:0.8em' dense standout >
+                    <template v-slot:append>
+                      <q-btn size='sm' icon='content_copy' @click='click_copy(item.val)' round dense flat/>
+                    </template>
+                  </q-input>
                 </div>
               </div>
             </div>
@@ -65,7 +72,7 @@
         </q-card>
       </div>
 
-      <div>
+      <div class='col-12-sm col-4'>
         <q-btn color='blue-5' label='New Environment' icon='add' @click="click_new_item({env: 'ENV_NAME'})" dense outline no-caps/>
       </div>
 
@@ -116,7 +123,7 @@ export default {
       if (err.response != undefined && err.response.status === 401) {
         this.$store.dispatch('logout');
         this.notify('Session expired.', 'Logging out...')
-        setTimeout(() => this.$router.go(), 5000);
+        setTimeout(() => this.$router.go(), 3000);
         return Promise.reject(err);
       }
     });
