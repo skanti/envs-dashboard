@@ -19,8 +19,9 @@
           <q-card-section class='q-py-sm'>
             <div class='row items-center no-wrap'>
               <div class='col'>
-                <q-input label='Environment Name (Example: jenkins, zucc, hotfix)' :model-value='env.name' bg-color='blue-3'
-                  debounce='300' @update:model-value='v => on_change({ env: env.name}, {env: v})' dense standout/>
+                <q-input label='Environment Name (Example: jenkins, zucc, hotfix)'
+                  :model-value='env.name' bg-color='blue-3' input-class='text-dark' debounce='300'
+                  @update:model-value='v => on_change({ env: env.name}, {env: v})' dense standout/>
               </div>
               <div class='col-auto'>
                 <q-btn class='fit' color='blue-5' icon='content_copy' @click='click_copy_env(env.name)'
@@ -29,8 +30,9 @@
             </div>
           </q-card-section>
           <q-card-section class='q-py-sm q-ml-md' v-for='(tag,j) in env.tags' :key="'tag' + j">
-            <q-input label='Tag Name (Example: mongodb, moosend, rabbitmq)' :model-value='tag.name' bg-color='green-3'
-              debounce='300' @update:model-value='v => on_change({ env: env.name, tag: tag.name}, {tag: v.toLowerCase()})' dense standout/>
+            <q-input label='Tag Name (Example: mongodb, moosend, rabbitmq)'
+              :model-value='tag.name' bg-color='green-3' input-class='text-dark' debounce='300'
+              @update:model-value='v => on_change({ env: env.name, tag: tag.name}, {tag: v.toLowerCase()})' dense standout/>
             <div class='q-ml-md q-mt-md'>
               <div class='row items-center q-col-gutter-xs q-mb-xs' v-for='(item,k) in tag.items' :key="'env' + i + 'tag' + j + 'item' + k">
                 <div class='col-auto'>
@@ -38,7 +40,7 @@
                     @click='click_remove_item({ env: env.name, tag: tag.name, key: item.key})' dense unelevated/>
                   </div>
                 <div class='col-5'>
-                  <q-input :model-value='item.key' bg-color='orange-2' debounce='300'
+                  <q-input :model-value='item.key' bg-color='orange-2' input-class='text-dark' debounce='300'
                     @update:model-value='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {key: v.toUpperCase()})'
                     style='font-size:0.8em' dense standout>
                     <template v-slot:append>
@@ -50,7 +52,7 @@
                   </q-input>
                 </div>
                 <div class='col-6'>
-                  <q-input :model-value='item.val' bg-color='orange-2' debounce='300'
+                  <q-input :model-value='item.val' bg-color='orange-2' debounce='300' input-class='text-dark'
                     @update:model-value='v => on_change({ env: env.name, tag: tag.name, key: item.key}, {val: v})'
                     style='font-size:0.8em' dense standout >
                     <template v-slot:append>
