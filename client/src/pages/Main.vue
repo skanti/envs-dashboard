@@ -185,7 +185,7 @@ export default {
       this.notify(text, 'Copied!')
     },
     notify (message, caption) {
-      this.$q.notify({ timeout: 1000, color: 'orange-5', icon: 'comment-alt', caption: caption, message: message, position: 'bottom' })
+      this.$q.notify({ timeout: 1000, color: 'orange-5', icon: 'chat', caption: caption, message: message, position: 'bottom' })
     },
     click_logout () {
       this.$store.dispatch('logout')
