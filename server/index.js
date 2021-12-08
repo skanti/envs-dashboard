@@ -85,7 +85,7 @@ app.get('/api/db', authenticate_jwt, function (req, res, next) {
 
 app.get('/api/api_token', authenticate_jwt, function (req, res, next) {
   //let r = db.remove('api_token').write();
-  const token = CryptoJS.lib.WordArray.random(16).toString();
+  //const token = CryptoJS.lib.WordArray.random(16).toString();
   //let r = db.update('api_token', x => token).write();
   let r = db.get('api_token').value();
   res.send(r);
@@ -105,7 +105,7 @@ app.get('/api/envs', function (req, res, next) {
   if (!env)
     return res.status(500).send('Env not specified');
 
-  if (!api_token)
+  if (!api_token || api_token !== db.get('api_token').value())
     return res.status(401).send();
 
   if (!tags)
