@@ -4,7 +4,7 @@ client/dist
 static
 
 # generated
-vault
+vault*
 
 # editor stuff
 .vscode

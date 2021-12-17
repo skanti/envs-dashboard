@@ -12,9 +12,16 @@ const low = require('lowdb')
 const FileSync = require('lowdb/adapters/FileSync')
 const CryptoJS = require('crypto-js');
 const rateLimit = require('express-rate-limit');
+const yargs = require('yargs/yargs');
 const lodash = require('lodash');
 
-
+// command line arguments parser
+const args = yargs(process.argv.slice(2))
+  .option('hostname', { desc: 'Hostname of server', default: 'localhost', demandOption: true})
+  .option('port', { desc: 'Port of server', default: 4000, demandOption: true })
+  .option('jwt_secret', { desc: 'JWT secret', demandOption: true })
+  .option('vault_path', { desc: 'JWT secret', default: './vault', demandOption: true })
+  .argv;
 
 // express setup
 const app = express();
@@ -31,18 +38,17 @@ app.use('/api/', api_limiter);
 
 
 // vault stuff
-assert.ok(process.env.JWT_SECRET);
+assert.ok(args.jwt_secret);
 const encrypt = (text) => {
-  return CryptoJS.AES.encrypt(text, process.env.JWT_SECRET).toString();
+  return CryptoJS.AES.encrypt(text, args.jwt_secret).toString();
 };
 
 const decrypt = (hash) => {
-  let bytes = CryptoJS.AES.decrypt(hash, process.env.JWT_SECRET);
+  let bytes = CryptoJS.AES.decrypt(hash, args.jwt_secret);
   return bytes.toString(CryptoJS.enc.Utf8);
 };
 
-const vault_filename = './vault';
-const adapter = new FileSync(vault_filename, {
+const adapter = new FileSync(args.vault_path, {
   serialize: (data) => encrypt(JSON.stringify(data)),
   deserialize: (data) => JSON.parse(decrypt(data))
 })
@@ -55,7 +61,7 @@ const authenticate_jwt = function(req, res, next) {
   if (!access_token)
     return res.sendStatus(401);
 
-  jwt.verify(access_token, process.env.JWT_SECRET, (err, data) => {
+  jwt.verify(access_token, args.jwt_secret, (err, data) => {
     if (err)
       return res.sendStatus(401);
     req.user = data.user;
@@ -65,13 +71,13 @@ const authenticate_jwt = function(req, res, next) {
 
 function create_access_token(user){
   const content = { user: user };
-  return jwt.sign(content, process.env.JWT_SECRET, { expiresIn: '1h' });
+  return jwt.sign(content, args.jwt_secret, { expiresIn: '1h' });
 }
 
 app.post('/api/login', function (req, res, next) {
-  assert.ok(process.env.JWT_SECRET);
+  assert.ok(args.jwt_secret);
   let { user, password } = req.body;
-  if (password !== process.env.JWT_SECRET)
+  if (password !== args.jwt_secret)
     return res.sendStatus(401);
   const access_token = create_access_token(user);
   res.send({ access_token: access_token });
@@ -142,12 +148,9 @@ app.use(middleware_static);
 
 
 // start server
-assert.ok(process.env.SERVER_HOSTNAME);
-assert.ok(process.env.SERVER_PORT);
-assert.ok(process.env.SERVER_URL);
 let server = http.createServer(app);
-server.listen({'port' : process.env.SERVER_PORT, host: process.env.SERVER_HOSTNAME}, () => {
+server.listen({'port' : args.port, host: args.hostname}, () => {
   app.emit( 'app_started' )
-  console.log(`Server running at ${process.env.SERVER_URL}`);
+  console.log(`Server running at http://${args.hostname}:${args.port}`);
 });
 
