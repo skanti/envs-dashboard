@@ -56,7 +56,7 @@ const adapter = new FileSync(args.vault_path, {
 const db = low(adapter)
 db.defaults({ envs: [], api_token: CryptoJS.lib.WordArray.random(16).toString()}).write();
 
-const authenticate_jwt = function(req, res, next) {
+function authenticate_jwt(req, res, next) {
   const access_token = req.headers['x-access-token'];
   if (!access_token)
     return res.sendStatus(401);
@@ -76,7 +76,7 @@ function create_access_token(user){
 
 app.post('/api/login', function (req, res, next) {
   assert.ok(args.jwt_secret);
-  let { user, password } = req.body;
+  const { user, password } = req.body;
   if (password !== args.jwt_secret)
     return res.sendStatus(401);
   const access_token = create_access_token(user);
@@ -89,14 +89,6 @@ app.get('/api/db', authenticate_jwt, function (req, res, next) {
   res.send(r);
 });
 
-app.get('/api/api_token', authenticate_jwt, function (req, res, next) {
-  //let r = db.remove('api_token').write();
-  //const token = CryptoJS.lib.WordArray.random(16).toString();
-  //let r = db.update('api_token', x => token).write();
-  let r = db.get('api_token').value();
-  res.send(r);
-});
-
 app.post('/api/db', authenticate_jwt, function (req, res, next) {
   let { data } = req.body;
   db.get('envs').remove().write();
@@ -104,6 +96,14 @@ app.post('/api/db', authenticate_jwt, function (req, res, next) {
     db.get('envs').push(item).write();
   }
   res.send();
+});
+
+app.get('/api/api_token', authenticate_jwt, function (req, res, next) {
+  //let r = db.remove('api_token').write();
+  //const token = CryptoJS.lib.WordArray.random(16).toString();
+  //let r = db.update('api_token', x => token).write();
+  const r = db.get('api_token').value();
+  res.send(r);
 });
 
 app.get('/api/envs', function (req, res, next) {
