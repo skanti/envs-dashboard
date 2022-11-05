@@ -23,6 +23,8 @@ const args = yargs(process.argv.slice(2))
   .option('vault_path', { desc: 'JWT secret', default: './vault', demandOption: true })
   .argv;
 
+assert.ok(args.jwt_secret);
+
 // express setup
 const app = express();
 app.use(cors());
@@ -56,7 +58,14 @@ const adapter = new FileSync(args.vault_path, {
 const db = low(adapter)
 db.defaults({ envs: [], api_token: CryptoJS.lib.WordArray.random(16).toString()}).write();
 
-function authenticate_jwt(req, res, next) {
+function timeout(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function authenticate_jwt(req, res, next) {
+  // delay
+  await timeout(1000);
+
   const access_token = req.headers['x-access-token'];
   if (!access_token)
     return res.sendStatus(401);
@@ -74,8 +83,10 @@ function create_access_token(user){
   return jwt.sign(content, args.jwt_secret, { expiresIn: '1h' });
 }
 
-app.post('/api/login', function (req, res, next) {
-  assert.ok(args.jwt_secret);
+app.post('/api/login', async function (req, res, next) {
+  // delay
+  await timeout(1000);
+
   const { user, password } = req.body;
   if (password !== args.jwt_secret)
     return res.sendStatus(401);
@@ -135,10 +146,6 @@ app.get('/api/envs', function (req, res, next) {
   }
 });
 
-
-const timeout = function(s) {
-  return new Promise(resolve => setTimeout(resolve, s*1000));
-}
 
 // vue client static
 const middleware_static = express.static('../client/dist');

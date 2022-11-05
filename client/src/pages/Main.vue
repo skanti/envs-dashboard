@@ -185,9 +185,11 @@ export default {
       return items.length > 1
     },
     async click_save () {
+      this.loading = true
       await axios.post('/api/db', { data: this.envs })
       await this.sync()
       this.notify(null, 'Saved!')
+      this.loading = false
     },
     async click_copy (text) {
       copyToClipboard(text)
