@@ -6,6 +6,9 @@ static
 # generated
 vault*
 
+# certificates
+certs
+
 # editor stuff
 .vscode
 *.sw?

@@ -19,8 +19,8 @@ const lodash = require('lodash');
 const args = yargs(process.argv.slice(2))
   .option('hostname', { desc: 'Hostname of server', default: 'localhost', demandOption: true})
   .option('port', { desc: 'Port of server', default: 4000, demandOption: true })
-  .option('jwt_secret', { desc: 'JWT secret', demandOption: true })
-  .option('vault_path', { desc: 'JWT secret', default: './vault', demandOption: true })
+  .option('jwt_secret', { desc: 'JWT secret', default: process.env.JWT_SECRET, demandOption: true })
+  .option('vault_path', { desc: 'Vault path', default: './vault', demandOption: true })
   .argv;
 
 assert.ok(args.jwt_secret);
